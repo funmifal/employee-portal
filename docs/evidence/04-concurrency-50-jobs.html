@@ -1,0 +1,69 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><style>
+  body { font-family: ui-monospace, Consolas, monospace; background:#0f172a; color:#e2e8f0; margin:0; padding:28px 36px; }
+  h1 { color:#34d399; font-size:20px; margin:0 0 4px; }
+  .sub { color:#94a3b8; font-size:12px; margin-bottom:18px; }
+  .panel { background:#0b1220; border:1px solid #1e293b; border-radius:10px; padding:16px 20px; margin-bottom:18px; }
+  .k { color:#38bdf8; font-weight:700; }
+  .ok { color:#34d399; }
+  .warn { color:#fbbf24; }
+  .err { color:#f87171; }
+  pre { margin:0; font-size:12px; line-height:1.55; white-space:pre-wrap; word-break:break-all; }
+  .statgrid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:10px; }
+  .stat { background:#111c32; border-radius:8px; padding:10px 14px; }
+  .stat b { display:block; font-size:22px; color:#34d399; }
+  .stat span { font-size:11px; color:#94a3b8; }
+</style></head><body>
+  <h1>Concurrency cap holds under a 50-job burst (cap = 5)</h1>
+  <div class="sub">Captured from real worker logs on 2026-09-22 — see docs/job-system-attacks.md</div>
+  
+  <div class="statgrid">
+    <div class="stat"><b>50 / 50</b><span>jobs succeeded on attempt 1 (no retries)</span></div>
+    <div class="stat"><b>5 / 5</b><span>max concurrent claims observed</span></div>
+    <div class="stat"><b>0 .. 5</b><span>observed concurrency values</span></div>
+    <div class="stat"><b>0</b><span>jobs with attempts > 1</span></div>
+  </div>
+  <div class="panel"><h1></h1>
+    <pre>[Worker] claimed cmucvbof8001guatsnpiyk8mu (concurrency now 1/5, peak 1)
+[Worker] claimed cmucvboim001huatsn5880ybm (concurrency now 2/5, peak 2)
+[Worker] claimed cmucvboks001iuatsuig5z2x7 (concurrency now 3/5, peak 3)
+[Worker] claimed cmucvbomp001juats8mbdhalz (concurrency now 4/5, peak 4)
+[Worker] claimed cmucvbooi001kuats7s62flpc (concurrency now 5/5, peak 5)
+[Worker] Job cmucvbof8001guatsnpiyk8mu succeeded on attempt 1
+[Worker] done cmucvbof8001guatsnpiyk8mu (concurrency now 4/5)
+[Worker] Job cmucvboim001huatsn5880ybm succeeded on attempt 1
+[Worker] done cmucvboim001huatsn5880ybm (concurrency now 3/5)
+[Worker] claimed cmucvboqf001luatsgidtra20 (concurrency now 4/5, peak 5)
+[Worker] claimed cmucvbosv001muatsim1d30at (concurrency now 5/5, peak 5)
+[Worker] Job cmucvboks001iuatsuig5z2x7 succeeded on attempt 1
+[Worker] done cmucvboks001iuatsuig5z2x7 (concurrency now 4/5)
+[Worker] Job cmucvbomp001juats8mbdhalz succeeded on attempt 1
+[Worker] done cmucvbomp001juats8mbdhalz (concurrency now 3/5)
+[Worker] claimed cmucvbouj001nuatsemj4af7g (concurrency now 4/5, peak 5)
+[Worker] claimed cmucvboxv001ouatsauilfs4d (concurrency now 5/5, peak 5)
+[Worker] Job cmucvbooi001kuats7s62flpc succeeded on attempt 1
+[Worker] done cmucvbooi001kuats7s62flpc (concurrency now 4/5)
+[Worker] claimed cmucvbozt001puatsfq2bte7x (concurrency now 5/5, peak 5)
+[Worker] Job cmucvboqf001luatsgidtra20 succeeded on attempt 1
+[Worker] done cmucvboqf001luatsgidtra20 (concurrency now 4/5)
+[Worker] Job cmucvbosv001muatsim1d30at succeeded on attempt 1
+[Worker] done cmucvbosv001muatsim1d30at (concurrency now 3/5)
+[Worker] claimed cmucvbp1z001quats7etiwyb3 (concurrency now 4/5, peak 5)
+[Worker] Job cmucvbouj001nuatsemj4af7g succeeded on attempt 1
+[Worker] done cmucvbouj001nuatsemj4af7g (concurrency now 3/5)
+[Worker] Job cmucvboxv001ouatsauilfs4d succeeded on attempt 1
+[Worker] done cmucvboxv001ouatsauilfs4d (concurrency now 2/5)
+[Worker] claimed cmucvbp3y001ruats5kuvflxf (concurrency now 3/5, peak 5)
+[Worker] claimed cmucvbp5v001suatshmd9qrk5 (concurrency now 4/5, peak 5)
+[Worker] claimed cmucvbp84001tuats1htoaz4g (concurrency now 5/5, peak 5)
+[Worker] Job cmucvbozt001puatsfq2bte7x succeeded on attempt 1
+[Worker] done cmucvbozt001puatsfq2bte7x (concurrency now 4/5)
+[Worker] claimed cmucvbpby001uuatsr9se9c5n (concurrency now 5/5, peak 5)
+[Worker] Job cmucvbp1z001quats7etiwyb3 succeeded on attempt 1
+[Worker] done cmucvbp1z001quats7etiwyb3 (concurrency now 4/5)
+[Worker] claimed cmucvbpdz001vuats247dkf9e (concurrency now 5/5, peak 5)
+[Worker] Job cmucvbp3y001ruats5kuvflxf succeeded on attempt 1
+[Worker] done cmucvbp3y001ruats5kuvflxf (concurrency now 4/5)
+  … (more claim/done lines)</pre>
+  </div>
+</body></html>
