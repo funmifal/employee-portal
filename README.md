@@ -205,3 +205,6 @@ docs/                  PRD, attack/verification record + evidence screenshots
   **screenshots** in `docs/evidence/`.
 - `docs/PRD employee.md` — the product requirement document driving the build.
 - `AGENTS.md` / `CLAUDE.md` — agent/rules files for this repository.
+## Task 4 Peer Review
+
+This branch is being used for the Task 4 peer code review exercise.
