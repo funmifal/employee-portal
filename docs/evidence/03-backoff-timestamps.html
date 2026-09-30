@@ -1,0 +1,30 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><style>
+  body { font-family: ui-monospace, Consolas, monospace; background:#0f172a; color:#e2e8f0; margin:0; padding:28px 36px; }
+  h1 { color:#fbbf24; font-size:20px; margin:0 0 4px; }
+  .sub { color:#94a3b8; font-size:12px; margin-bottom:18px; }
+  .panel { background:#0b1220; border:1px solid #1e293b; border-radius:10px; padding:16px 20px; margin-bottom:18px; }
+  .k { color:#38bdf8; font-weight:700; }
+  .ok { color:#34d399; }
+  .warn { color:#fbbf24; }
+  .err { color:#f87171; }
+  pre { margin:0; font-size:12px; line-height:1.55; white-space:pre-wrap; word-break:break-all; }
+  .statgrid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:10px; }
+  .stat { background:#111c32; border-radius:8px; padding:10px 14px; }
+  .stat b { display:block; font-size:22px; color:#fbbf24; }
+  .stat span { font-size:11px; color:#94a3b8; }
+</style></head><body>
+  <h1>Backoff delays grow between attempts</h1>
+  <div class="sub">Captured from real worker logs on 2026-09-22 — see docs/job-system-attacks.md</div>
+  
+  <div class="panel"><pre><span class="err">[ (stderr)]</span> failed attempt 1/3: Simulated failure for job cmucvccwj002uuatsl7dt08te (attempt 1)
+<span class="err">[ (stderr)]</span> failed attempt 2/3: Simulated failure for job cmucvccwj002uuatsl7dt08te (attempt 2)
+<span class="err">[ (stderr)]</span> failed attempt 3/3: Simulated failure for job cmucvccwj002uuatsl7dt08te (attempt 3)
+<span class="err">[ (stderr)]</span> Job cmucvccwj002uuatsl7dt08te is now DEAD after 3 attempts
+<span class="warn">[2026-09-22T16:08:41.225Z]</span> back to PENDING; retry #2 scheduled at 2026-09-22T16:08:41.225Z (delay 2048ms)
+<span class="warn">[2026-09-22T16:08:43.474Z]</span> back to PENDING; retry #3 scheduled at 2026-09-22T16:08:43.474Z (delay 4067ms)</pre></div>
+  <div class="panel"><pre><span class="k">Delays grow exponentially with jitter:</span>
+  attempt 1 fail  ->  <span class="warn">retry #2 scheduled ... (delay 2048ms)</span>
+  attempt 2 fail  ->  <span class="warn">retry #3 scheduled ... (delay 4067ms)</span>
+  attempt 3 fail  ->  <span class="err">is now DEAD after 3 attempts</span></pre></div>
+</body></html>

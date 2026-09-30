@@ -1,0 +1,133 @@
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [pgvector]
+}
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+enum Role {
+  VIEWER
+  EDITOR
+  ADMIN
+}
+
+enum ProcessingStatus {
+  PENDING
+  PROCESSING
+  FLAGGED_REVIEW
+  COMPLETED
+  FAILED
+}
+
+enum JobStatus {
+  PENDING
+  PROCESSING
+  SUCCEEDED
+  FAILED
+  DEAD
+}
+
+enum ManualStatus {
+  DRAFT
+  PUBLISHED
+}
+
+model User {
+  id        String        @id @default(cuid())
+  email     String        @unique
+  name      String?
+  role      Role          @default(EDITOR)
+  uploads   UploadBatch[]
+  manuals   Manual[]
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+}
+
+model UploadBatch {
+  id        String           @id @default(cuid())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id])
+  status    ProcessingStatus @default(PENDING)
+  images    ImageItem[]
+  manualId  String?
+  manual    Manual?          @relation(fields: [manualId], references: [id])
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+}
+
+model ImageItem {
+  id         String      @id @default(cuid())
+  batchId    String
+  batch      UploadBatch @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  imageUrl   String
+  ocrText    String?
+  confidence Float?
+  pageOrder  Int
+  createdAt  DateTime    @default(now())
+}
+
+model Manual {
+  id          String        @id @default(cuid())
+  title       String
+  description String?
+  status      ManualStatus  @default(DRAFT)
+  authorId    String
+  author      User          @relation(fields: [authorId], references: [id])
+  batches     UploadBatch[]
+  chapters    Chapter[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+model Chapter {
+  id         String                 @id @default(cuid())
+  manualId   String
+  manual     Manual                 @relation(fields: [manualId], references: [id], onDelete: Cascade)
+  title      String
+  content    String
+  embedding  Unsupported("vector")?
+  orderIndex Int
+  createdAt  DateTime               @default(now())
+  updatedAt  DateTime               @updatedAt
+}
+
+model Job {
+  id             String    @id @default(cuid())
+  type           String
+  payload        Json
+  status         JobStatus @default(PENDING)
+  attempts       Int       @default(0)
+  maxAttempts    Int       @default(3)
+  lastError      String?
+  runAt          DateTime  @default(now())
+  startedAt      DateTime?
+  finishedAt     DateTime?
+  idempotencyKey String?   @unique
+  output         JobOutput?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@index([status, runAt])
+}
+
+/**
+ * Output registry for idempotent job execution. The row is keyed by job id:
+ * before a job re-runs its work it checks whether an output already exists and,
+ * if so, returns the stored result instead of doing the work again. That makes
+ * a second run of the same job safe — a worker that crashed after doing the
+ * work but before marking the job SUCCEEDED will not redo it (double email,
+ * double charge, etc.).
+ */
+model JobOutput {
+  id        String   @id @default(cuid())
+  jobId     String   @unique
+  type      String
+  payload   Json
+  createdAt DateTime @default(now())
+
+  job Job @relation(fields: [jobId], references: [id], onDelete: Cascade)
+}
